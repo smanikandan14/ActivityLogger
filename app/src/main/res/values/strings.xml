@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">My Activities</string>
+    <string name="trip_logging">Activity logging</string>
+    <string name="no_trips">No Activities</string>
+
+    <string name="alert_location_services_not_active">Location Services Not Active</string>
+    <string name="alert_location_services_message">Please enable Location Services for the application to function.</string>
+
+
+    <!-- Trip time summary -->
+    <string name="trip_time_format">%1$s-%2$s (%3$s)</string>
+</resources>

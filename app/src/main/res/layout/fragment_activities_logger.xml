@@ -1,0 +1,50 @@
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:background="@color/bg_screen">
+
+    <Switch
+        android:id="@+id/tripLogSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/font_white"/>
+
+    <TextView
+        android:id="@+id/tripLoggingTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@id/tripLogSwitch"
+        style="@style/TitleFont"
+        android:text="@string/trip_logging"/>
+
+    <View
+        android:id="@+id/horizontalLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/list_item_divider"
+        android:layout_below="@id/tripLoggingTxt"
+        android:layout_marginTop="@dimen/activity_vertical_margin"/>
+
+    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+        android:id="@+id/tripsList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="none"
+        android:dividerHeight="1dp"
+        android:divider="@color/list_item_divider"
+        android:layout_below="@id/horizontalLine"/>
+
+    <TextView
+        android:id="@+id/emptyListView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        style="@style/ListItemTitleFont"
+        android:text="@string/no_trips"/>
+</RelativeLayout>

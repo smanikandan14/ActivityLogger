@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="primary">#009688</color>
+    <color name="primaryDark">#00796b</color>
+    <color name="accent">#eeff41</color>
+
+    <item name="bg_screen" type="color">#EDE9E2</item>
+    <item name="bg_action_bar" type="color">#E6E2DA</item>
+
+    <!-- Fonts color -->
+    <item name="font_dark" type="color">#666666</item>
+    <item name="font_light" type="color">#BABAAC</item>
+    <item name="font_actionbar" type="color">#96948A</item>
+    <item name="font_white" type="color">#ffffff</item>
+
+    <item name="list_item_divider" type="color">#B2AEA7</item>
+
+</resources>
+

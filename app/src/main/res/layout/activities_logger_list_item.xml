@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <ImageView
+        android:id="@+id/tripTypeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"/>
+
+    <com.mani.activitylogger.ui.AddressView
+        android:id="@+id/tripAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_toRightOf="@id/tripTypeIcon"/>
+
+    <TextView
+        android:id="@+id/tripTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tripAddress"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_toRightOf="@id/tripTypeIcon"
+        style="@style/ListItemDescriptionFont"/>
+
+</RelativeLayout>
