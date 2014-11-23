@@ -13,7 +13,7 @@ public class ActivitiesLoggerDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "trips.db";
+    private static final String DATABASE_NAME = "activities.db";
 
     public ActivitiesLoggerDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -21,18 +21,18 @@ public class ActivitiesLoggerDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("Create table if not exists " + ActivitiesConstants.TRIP_TABLE +
-                "(" + ActivitiesConstants.TRIP.TRIP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                ActivitiesConstants.TRIP.START_LOCATION + " INTEGER," +
-                ActivitiesConstants.TRIP.END_LOCATION + " INTEGER," +
-                ActivitiesConstants.TRIP.START_TIME + " INTEGER," +
-                ActivitiesConstants.TRIP.END_TIME + " INTEGER, " +
-                ActivitiesConstants.TRIP.ACTIVITY_TYPE + " INTEGER, " +
-                "FOREIGN KEY ("+ ActivitiesConstants.TRIP.ACTIVITY_TYPE+") REFERENCES "+
-                    ActivitiesConstants.ACTIVITY_TABLE +"("+ ActivitiesConstants.ACTIVITY.ACTIVITY_ID +") ON DELETE CASCADE,"+
-                "FOREIGN KEY ("+ ActivitiesConstants.TRIP.START_LOCATION+") REFERENCES "+
+        db.execSQL("Create table if not exists " + ActivitiesConstants.ACTIVITY_TABLE +
+                "(" + ActivitiesConstants.ACTIVITY.ACTIVITY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ActivitiesConstants.ACTIVITY.START_LOCATION + " INTEGER," +
+                ActivitiesConstants.ACTIVITY.END_LOCATION + " INTEGER," +
+                ActivitiesConstants.ACTIVITY.START_TIME + " INTEGER," +
+                ActivitiesConstants.ACTIVITY.END_TIME + " INTEGER, " +
+                ActivitiesConstants.ACTIVITY.ACTIVITY_TYPE + " INTEGER, " +
+                "FOREIGN KEY ("+ ActivitiesConstants.ACTIVITY.ACTIVITY_TYPE+") REFERENCES "+
+                    ActivitiesConstants.ACTIVITY_TABLE +"("+ ActivitiesConstants.ACTIVITY_NAME.ACTIVITY_ID +") ON DELETE CASCADE,"+
+                "FOREIGN KEY ("+ ActivitiesConstants.ACTIVITY.START_LOCATION+") REFERENCES "+
                     ActivitiesConstants.LOCATION_TABLE +"("+ ActivitiesConstants.LOCATION.LOCATION_ID +") ON DELETE CASCADE,"+
-                "FOREIGN KEY ("+ ActivitiesConstants.TRIP.END_LOCATION+") REFERENCES "+
+                "FOREIGN KEY ("+ ActivitiesConstants.ACTIVITY.END_LOCATION+") REFERENCES "+
                     ActivitiesConstants.LOCATION_TABLE +"("+ ActivitiesConstants.LOCATION.LOCATION_ID +") ON DELETE CASCADE "+
                 ");");
 
@@ -43,9 +43,9 @@ public class ActivitiesLoggerDatabase extends SQLiteOpenHelper {
                 ActivitiesConstants.LOCATION.ADDRESS + " TEXT" +
                 ");");
 
-        db.execSQL("Create table if not exists " + ActivitiesConstants.ACTIVITY_TABLE +
-                "(" + ActivitiesConstants.ACTIVITY.ACTIVITY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                ActivitiesConstants.ACTIVITY.ACTIVITY_NAME + " TEXT" +
+        db.execSQL("Create table if not exists " + ActivitiesConstants.ACTIVITY_NAME_TABLE +
+                "(" + ActivitiesConstants.ACTIVITY_NAME.ACTIVITY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ActivitiesConstants.ACTIVITY_NAME.ACTIVITY_NAME + " TEXT" +
                 ");");
 
     }
@@ -54,7 +54,7 @@ public class ActivitiesLoggerDatabase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // [NOT TAKEN CARE for the DEMO]
         // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + ActivitiesConstants.TRIP_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + ActivitiesConstants.ACTIVITY_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + ActivitiesConstants.LOCATION_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + ActivitiesConstants.ACTIVITY_TABLE);
     }

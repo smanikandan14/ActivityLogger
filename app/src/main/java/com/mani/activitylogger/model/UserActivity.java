@@ -22,7 +22,7 @@ public class UserActivity {
 
     ActivityLocation endLocation;
 
-    DetectedActivity activity;
+    ActivityName activity;
 
 
     public long getId() {
@@ -65,11 +65,11 @@ public class UserActivity {
         this.endTime = endTime;
     }
 
-    public DetectedActivity getActivity() {
+    public ActivityName getActivity() {
         return activity;
     }
 
-    public void setActivity(DetectedActivity activity) {
+    public void setActivity(ActivityName activity) {
         this.activity = activity;
     }
 

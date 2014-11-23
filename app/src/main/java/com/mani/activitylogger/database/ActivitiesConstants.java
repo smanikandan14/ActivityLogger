@@ -4,12 +4,12 @@ package com.mani.activitylogger.database;
  * Created by manikandan.selvaraju on 10/3/14.
  */
 public class ActivitiesConstants {
-    public static final String TRIP_TABLE = "trips";
-    public static final String LOCATION_TABLE = "location";
     public static final String ACTIVITY_TABLE = "activities";
+    public static final String LOCATION_TABLE = "location";
+    public static final String ACTIVITY_NAME_TABLE = "activitiesName";
 
-    public static class TRIP {
-        public static final String TRIP_ID = "trip_id";
+    public static class ACTIVITY {
+        public static final String ACTIVITY_ID = "activity_id";
         public static final String START_LOCATION = "start_location";
         public static final String END_LOCATION = "end_location";
         public static final String START_TIME = "start_time";
@@ -31,7 +31,7 @@ public class ActivitiesConstants {
         public static final String ADDRESS = "address";
     }
 
-    public static class ACTIVITY {
+    public static class ACTIVITY_NAME {
         public static final String ACTIVITY_ID = "activity_id";
         public static final String ACTIVITY_NAME = "activity";
 

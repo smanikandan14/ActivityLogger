@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.mani.activitylogger.R;
 import com.mani.activitylogger.app.ActivitiesLoggerApplication;
-import com.mani.activitylogger.model.DetectedActivity;
+import com.mani.activitylogger.model.ActivityName;
 import com.mani.activitylogger.model.UserActivity;
 import com.mani.activitylogger.ui.AddressView;
 import com.mani.activitylogger.util.DateTimeUtil;
@@ -116,12 +116,12 @@ public class ActivitiesListAdapter extends BaseAdapter implements StickyListHead
         TextView text;
     }
 
-    private int getTripActivityIcon(DetectedActivity detectedActivity) {
-        if (detectedActivity == DetectedActivity.WALK) {
+    private int getTripActivityIcon(ActivityName activityName) {
+        if (activityName == ActivityName.WALK) {
             return R.drawable.icon_walk;
-        } else if (detectedActivity == DetectedActivity.BICYCLE) {
+        } else if (activityName == ActivityName.BICYCLE) {
             return R.drawable.icon_bike;
-        } else if (detectedActivity == DetectedActivity.VEHICLE) {
+        } else if (activityName == ActivityName.VEHICLE) {
             return R.drawable.icon_drive;
         }
 

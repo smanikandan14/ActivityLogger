@@ -3,7 +3,7 @@ package com.mani.activitylogger.model;
 /**
  * Created by manikandan.selvaraju on 10/3/14.
  */
-public enum DetectedActivity {
+public enum ActivityName {
 
     WALK ("walk"),
     BICYCLE ("bicycle"),
@@ -11,7 +11,7 @@ public enum DetectedActivity {
     UNKNOWN ("unknown");
     String name;
 
-    DetectedActivity(String name) {
+    ActivityName(String name) {
         this.name = name;
     }
 
@@ -19,7 +19,7 @@ public enum DetectedActivity {
         return name;
     }
 
-    public static DetectedActivity getActivity(String name) {
+    public static ActivityName getActivity(String name) {
 
         if (name.equals(WALK.getName())) {
             return WALK;

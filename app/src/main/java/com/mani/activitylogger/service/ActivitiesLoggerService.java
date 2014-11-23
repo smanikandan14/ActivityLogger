@@ -20,11 +20,12 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityRecognitionResult;
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.mani.activitylogger.database.ActivitiesDBManager;
-import com.mani.activitylogger.model.DetectedActivity;
+import com.mani.activitylogger.model.ActivityName;
 import com.mani.activitylogger.receiver.NewActivityReceiver;
 import com.mani.activitylogger.util.ActivityLoggerPreferenceManager;
 import com.mani.activitylogger.util.PreferenceKeys;
@@ -38,19 +39,19 @@ import java.util.Locale;
  * This is a non-dying service ( i.e sticky service). Even if the service is killed by OS
  * to reclaim memory, the service would be restarted by system again since it is sticky.
  *
- * - Broadcasts new trip available message for UI to refresh whenever a trip is ended.
+ * - Broadcasts new ActivityDetected available message for UI to refresh whenever a activity is ended.
  *
  * - There is one handler thread created and is available as long as this service is running.
  *   It is primarily used for reverse geo coding purpose.
  *
- * - Updates the current trip Id into preference whenever a trip is started and sets it to 0
- *   when trip is ended.
+ * - Updates the current Activity Id into preference whenever a activity is started and sets it to 0
+ *   when activity is ended.
  *
- * - If the service is killed in between a trip, services reads from preference when starting and
- *   continue recording the trip.
+ * - If the service is killed in between an activity, services reads from preference when starting and
+ *   continue recording the activity.
  *
  * - A 30 Sec CountDownTimer is used to identify if the user is in STILL state. The timer is started
- *   when STILL activity is identified during a trip.
+ *   when STILL activity is identified during a activity.
  *
  * Created by manikandan.selvaraju on 10/3/14.
  */
@@ -81,7 +82,7 @@ public class ActivitiesLoggerService extends Service implements
     // Defines the minimum age of last location obtained.
     private final int TIME_SINCE_LAST_LOCATION = 5 * 60 * 1000; // 15 minutes
 
-    private final String TAG = "TripLoggerService";
+    private final String TAG = "ActivityLoggerService";
 
     // Stores the instantiation of the location client
     private LocationClient mLocationClient;
@@ -98,11 +99,11 @@ public class ActivitiesLoggerService extends Service implements
     // Indicates if STILL_STATE timer is running
     private boolean mTimerStarted = false;
 
-    // Holds the activity of the current trip.
-    private DetectedActivity mCurrentDetectedActivity;
+    // Holds the current activity of the user.
+    private ActivityName mCurrentActivityName;
 
-    // Holds the current trip Id
-    private long mCurrentTripId = 0;
+    // Holds the current activity Id
+    private long mCurrentActivityId = 0;
 
     // Timer used to identify STILL_STATE of user
     private StillStateTimer mStillStateTimer;
@@ -145,7 +146,7 @@ public class ActivitiesLoggerService extends Service implements
 
         mInVehicleStillStateTimer = new StillStateTimer(STILL_STATE_INTERVAL, 1000L);
 
-        mCurrentDetectedActivity = DetectedActivity.UNKNOWN;
+        mCurrentActivityName = ActivityName.UNKNOWN;
 
         checkForTripIdFromPreference();
     }
@@ -163,22 +164,22 @@ public class ActivitiesLoggerService extends Service implements
     }
 
     /**
-     * Checks if there was a previous trip user was carrying out when the services is killed and
+     * Checks if there was a previous activity for user when the services is killed and
      * restarted.
      */
     private void checkForTripIdFromPreference() {
-        mCurrentTripId = ActivityLoggerPreferenceManager.getLong(PreferenceKeys.CURRENT_TRIP_ID, 0);
-        if ( mCurrentTripId > 0) {
+        mCurrentActivityId = ActivityLoggerPreferenceManager.getLong(PreferenceKeys.CURRENT_TRIP_ID, 0);
+        if ( mCurrentActivityId > 0) {
             boolean isStartLocationSet = ActivitiesDBManager.getInstance().
-                    isTripStartLocationSet(mCurrentTripId);
+                    isTripStartLocationSet(mCurrentActivityId);
 
             if(isStartLocationSet == false) {
-                //If start location is not set, then delete the trip.
-                ActivitiesDBManager.getInstance().deleteTrip(mCurrentTripId);
-                mCurrentTripId = 0;
+                //If start location is not set, then delete the activity.
+                ActivitiesDBManager.getInstance().deleteTrip(mCurrentActivityId);
+                mCurrentActivityId = 0;
             }  else {
                 //Set the previous current activity when service died.
-                mCurrentDetectedActivity = ActivitiesDBManager.getInstance().getTripActivity(mCurrentTripId);
+                mCurrentActivityName = ActivitiesDBManager.getInstance().getTripActivity(mCurrentActivityId);
             }
         }
     }
@@ -256,15 +257,15 @@ public class ActivitiesLoggerService extends Service implements
      * @param type
      * @return
      */
-    private DetectedActivity getActivity(int type) {
-         if(type == com.google.android.gms.location.DetectedActivity.IN_VEHICLE)
-            return DetectedActivity.VEHICLE;
-        else if(type == com.google.android.gms.location.DetectedActivity.ON_BICYCLE)
-            return DetectedActivity.BICYCLE;
-        else if(type == com.google.android.gms.location.DetectedActivity.ON_FOOT)
-            return DetectedActivity.WALK;
+    private ActivityName getActivity(int type) {
+         if(type == DetectedActivity.IN_VEHICLE)
+            return ActivityName.VEHICLE;
+        else if(type == DetectedActivity.ON_BICYCLE)
+            return ActivityName.BICYCLE;
+        else if(type == DetectedActivity.ON_FOOT)
+            return ActivityName.WALK;
         else
-             return DetectedActivity.UNKNOWN;
+             return ActivityName.UNKNOWN;
     }
 
     /**
@@ -272,17 +273,17 @@ public class ActivitiesLoggerService extends Service implements
      * DetectedActivity to text.
      */
     private String getNameForActivity(int type){
-        if(type == com.google.android.gms.location.DetectedActivity.UNKNOWN)
+        if(type == DetectedActivity.UNKNOWN)
             return "Unknown";
-        else if(type == com.google.android.gms.location.DetectedActivity.IN_VEHICLE)
+        else if(type == DetectedActivity.IN_VEHICLE)
             return "In Vehicle";
-        else if(type == com.google.android.gms.location.DetectedActivity.ON_BICYCLE)
+        else if(type == DetectedActivity.ON_BICYCLE)
             return "On Bicycle";
-        else if(type == com.google.android.gms.location.DetectedActivity.ON_FOOT)
+        else if(type == DetectedActivity.ON_FOOT)
             return "On Foot";
-        else if(type == com.google.android.gms.location.DetectedActivity.STILL)
+        else if(type == DetectedActivity.STILL)
             return "Still";
-        else if(type == com.google.android.gms.location.DetectedActivity.TILTING)
+        else if(type == DetectedActivity.TILTING)
             return "Tilting";
         else
             return "";
@@ -300,7 +301,7 @@ public class ActivitiesLoggerService extends Service implements
         Log.d(TAG, "handleActivityRecognition Activity Detected "+
                 getNameForActivity(detectedActivity)+", Confidence "+detectedActivityConfidence);
 
-        List<com.google.android.gms.location.DetectedActivity> activities = result.getProbableActivities();
+        List<DetectedActivity> activities = result.getProbableActivities();
 
         int footConfidence = 0;
         int bicycleConfidence = 0;
@@ -309,28 +310,29 @@ public class ActivitiesLoggerService extends Service implements
 
         //For logging
         StringBuffer probableActivitiesString = new StringBuffer();
-        for (com.google.android.gms.location.DetectedActivity activity : activities) {
-            if (activity.getType() == com.google.android.gms.location.DetectedActivity.ON_BICYCLE) {
+        for (DetectedActivity activity : activities) {
+            if (activity.getType() == DetectedActivity.ON_BICYCLE) {
                 bicycleConfidence = activity.getConfidence();
                 probableActivitiesString.append("ON_BICYCLE "+bicycleConfidence+" ");
 
-            } else if (activity.getType() == com.google.android.gms.location.DetectedActivity.ON_FOOT) {
+            } else if (activity.getType() == DetectedActivity.ON_FOOT) {
                 footConfidence = activity.getConfidence();
                 probableActivitiesString.append("ON_FOOT "+footConfidence+" ");
 
-            } else if (activity.getType() == com.google.android.gms.location.DetectedActivity.UNKNOWN) {
+            } else if (activity.getType() == DetectedActivity.UNKNOWN) {
                 unknownConfidence = activity.getConfidence();
                 probableActivitiesString.append("UNKNOWN "+unknownConfidence+" ");
 
-            } else if (activity.getType() == com.google.android.gms.location.DetectedActivity.IN_VEHICLE) {
+            } else if (activity.getType() == DetectedActivity.IN_VEHICLE) {
                 vehicleConfidence = activity.getConfidence();
                 probableActivitiesString.append("IN_VEHICLE "+vehicleConfidence+" ");
             }
         }
         Log.d(TAG, "Probable Activities Detected - "+probableActivitiesString);
 
-        if ( detectedActivity == com.google.android.gms.location.DetectedActivity.ON_FOOT || detectedActivity == com.google.android.gms.location.DetectedActivity.ON_BICYCLE
-                    || detectedActivity == com.google.android.gms.location.DetectedActivity.IN_VEHICLE ) {
+        // Check only interested activity: ON_FOOT, ON_BICYCLE, IN_VEHICLE
+        if ( detectedActivity == DetectedActivity.ON_FOOT || detectedActivity == DetectedActivity.ON_BICYCLE
+                    || detectedActivity == DetectedActivity.IN_VEHICLE ) {
 
             // No matter what the probable activity's confidences are
             // Cancel if any STILL_STATE timer running.
@@ -340,7 +342,7 @@ public class ActivitiesLoggerService extends Service implements
             // confidences.
 
             // Rejected: ON_FOOT 42  Probable - [UNKNOWN 25 ON_BICYCLE 20 IN_VEHICLE 12]
-            if( detectedActivity == com.google.android.gms.location.DetectedActivity.ON_FOOT) {
+            if( detectedActivity == DetectedActivity.ON_FOOT) {
                 if( detectedActivityConfidence < 50 || unknownConfidence > 30 ||
                         bicycleConfidence > 2 || vehicleConfidence > 10) {
                     //Mostly likely not reliable to assume ON_FOOT
@@ -350,7 +352,7 @@ public class ActivitiesLoggerService extends Service implements
             }
             // IN_VEHICLE & ON_BICYCLE activity needs more strict check on probable activities
             // confidences as well.
-            else if( detectedActivity == com.google.android.gms.location.DetectedActivity.ON_BICYCLE ) {
+            else if( detectedActivity == DetectedActivity.ON_BICYCLE ) {
                 // Accepted: ON_BICYCLE 46 - Probable [UNKNOWN 29 ON_FOOT 2]
                 if( detectedActivityConfidence < 80 || unknownConfidence > 30 ||
                         footConfidence > 2 || vehicleConfidence > 10) {
@@ -359,7 +361,7 @@ public class ActivitiesLoggerService extends Service implements
                     return;
                 }
 
-            } else if( detectedActivity == com.google.android.gms.location.DetectedActivity.IN_VEHICLE ) {
+            } else if( detectedActivity == DetectedActivity.IN_VEHICLE ) {
                 // Accepted: IN_VEHICLE 46 - Probable [UNKNOWN 29 ON_FOOT 2]
                 // Rejected: IN_VEHICLE 54 - Sometimes no probable activities obtained.
                 if( detectedActivityConfidence < 80 || unknownConfidence > 30 ||
@@ -370,34 +372,34 @@ public class ActivitiesLoggerService extends Service implements
                 }
             }
 
-            DetectedActivity userActivity = getActivity(detectedActivity);
+            ActivityName userActivity = getActivity(detectedActivity);
 
-            if(mCurrentTripId == 0) {
-                // No current trip found. Start a trip.
-                Log.d(TAG, " Starting a trip " );
-                mCurrentDetectedActivity = userActivity;
-                startTrip();
+            if(mCurrentActivityId == 0) {
+                // No current activity found. Start a activity.
+                Log.d(TAG, " Starting a activity " );
+                mCurrentActivityName = userActivity;
+                startUserActivity();
             } else {
-                if (userActivity != mCurrentDetectedActivity) {
-                    // A different activity is observed from current activity. So end the current trip
-                    // and consider this as new trip. This could happen for example
+                if (userActivity != mCurrentActivityName) {
+                    // A different activity is observed from current activity. So end the current activity
+                    // and consider this as new activity. This could happen for example
                     // if user [ WALKS -- DRIVES -- WALKS ]  or [ WALKS - BICYCLES - WALKS ].
-                    //Then we need record each transition in activity as new trip.
-                    mCurrentDetectedActivity = userActivity;
-                    Log.d(TAG, " New user activity identified. Finishing current trip - "+userActivity );
-                    //End the trip.
-                    endTrip(true);
+                    //Then we need record each transition in activity as new activity.
+                    mCurrentActivityName = userActivity;
+                    Log.d(TAG, " New user activity identified. Finishing current activity - "+userActivity );
+                    //End the activity.
+                    endUserActivity(true);
 
-                    Log.d(TAG, " New user activity identified. Starting new trip - "+ mCurrentDetectedActivity);
-                    //Start new trip.
-                    startTrip();
+                    Log.d(TAG, " New user activity identified. Starting new activity - "+ mCurrentActivityName);
+                    //Start new activity.
+                    startUserActivity();
                 } else {
                    //Same activity is obtained. Just continue to wait for STILL state to occur.
                 }
             }
         } else {
             //Ignore UNKNOWN, TILTING activity
-            if( detectedActivity == com.google.android.gms.location.DetectedActivity.STILL ) {
+            if( detectedActivity == DetectedActivity.STILL ) {
                 //Ignore if other probable activity confidences are found.
                 // Accept UNKNOWN if its confidence is less than 30.
                 if( bicycleConfidence > 0 || vehicleConfidence > 0 || footConfidence > 0 ||
@@ -406,10 +408,10 @@ public class ActivitiesLoggerService extends Service implements
                     return;
                 }
 
-                // If there is trip detected only then start identifying if user in still state.
-                if (mCurrentTripId != 0) {
+                // If there is activity detected only then start identifying if user in still state.
+                if (mCurrentActivityId != 0) {
                     // We need a 2 minutes timer if user is IN_VEHICLE state.
-                    if (mCurrentDetectedActivity == DetectedActivity.VEHICLE) {
+                    if (mCurrentActivityName == ActivityName.VEHICLE) {
                         startInVehicleTimer();
                     } else {
                         // Otherwise start a 30sec timer.
@@ -438,27 +440,27 @@ public class ActivitiesLoggerService extends Service implements
         // play services are fully functional. This shouldn't be hit ideally.
     }
 
-    private void startTrip() {
-        if(mCurrentTripId == 0) {
-            mCurrentTripId = ActivitiesDBManager.getInstance().addTrip(mCurrentDetectedActivity);
+    private void startUserActivity() {
+        if(mCurrentActivityId == 0) {
+            mCurrentActivityId = ActivitiesDBManager.getInstance().addActivity(mCurrentActivityName);
         }
-        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_TRIP_ID, mCurrentTripId);
+        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_TRIP_ID, mCurrentActivityId);
         getCurrentLocation();
     }
 
-    private void endTrip(boolean isDueToOtherActivityChange) {
+    private void endUserActivity(boolean isDueToOtherActivityChange) {
 
         if(isDueToOtherActivityChange) {
-            ActivitiesDBManager.getInstance().endTrip(mCurrentTripId, System.currentTimeMillis() / 1000);
+            ActivitiesDBManager.getInstance().endActivity(mCurrentActivityId, System.currentTimeMillis() / 1000);
         } else {
             // User is in STILL state more than 30 secs.
-            ActivitiesDBManager.getInstance().endTrip(mCurrentTripId,
+            ActivitiesDBManager.getInstance().endActivity(mCurrentActivityId,
                     (System.currentTimeMillis() - STILL_STATE_INTERVAL) / 1000);
         }
 
         getCurrentLocation();
-        mCurrentTripId = 0;
-        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_TRIP_ID, mCurrentTripId);
+        mCurrentActivityId = 0;
+        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_TRIP_ID, mCurrentActivityId);
     }
 
     public void getCurrentLocation() {
@@ -468,7 +470,7 @@ public class ActivitiesLoggerService extends Service implements
         if (lastLocation != null && lastLocation.getAccuracy() < MINIMUM_ACCURACY_DISTANCE &&
             System.currentTimeMillis() - lastLocation.getTime() < TIME_SINCE_LAST_LOCATION ) {
 
-            getAddress(lastLocation, mCurrentTripId);
+            getAddress(lastLocation, mCurrentActivityId);
 
         } else {
             //Fall back to get current location through location updates.
@@ -478,7 +480,7 @@ public class ActivitiesLoggerService extends Service implements
             mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
             mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
             mLocationClient.requestLocationUpdates(mLocationRequest,
-                    new TripLocationListener(mCurrentTripId));
+                    new ActivityLocationListener(mCurrentActivityId));
         }
     }
 
@@ -511,14 +513,14 @@ public class ActivitiesLoggerService extends Service implements
         }
 
         public void onFinish() {
-            endTrip(false);
+            endUserActivity(false);
         }
 
         public void onTick(long millisUntilFinished) { }
     }
 
     private void sendNewTripBroadcast() {
-        Log.d(TAG, "New Trip available message is Broad casted " );
+        Log.d(TAG, "New Activity available message is Broad casted " );
         Intent broadCastIntent = new Intent(NewActivityReceiver.ACTION_NEW_TRIP);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadCastIntent);
     }
@@ -528,15 +530,15 @@ public class ActivitiesLoggerService extends Service implements
     }
 
     /**
-     * Location listener for a trip. The location request can be triggered for
-     * either to find trip's start or end location. Until a reasonable good location
+     * Location listener for an Activity. The location request can be triggered for
+     * either to find activity's start or end location. Until a reasonable good location
      * is obtained, it waits to get a location.
      */
-    class TripLocationListener implements LocationListener {
+    class ActivityLocationListener implements LocationListener {
 
         long tripId;
 
-        TripLocationListener(long tripId) {
+        ActivityLocationListener(long tripId) {
             this.tripId = tripId;
         }
 
@@ -558,7 +560,7 @@ public class ActivitiesLoggerService extends Service implements
 
     /**
      * Given a tripId and a location, this runnable does reverse geocoding of the location
-     * and update the trip's either start or end location.
+     * and update the activity's either start or end location.
      *
      */
     class ReverseGeoCodeRunnable implements Runnable {
