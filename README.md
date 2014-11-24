@@ -37,7 +37,7 @@ Decided go with a sticky Service and use a handler thread to do heavy operations
 ```
      [ id. latitude, longitude, address]
 ```
-UI
+##UI
 * Roboto different fonts are used to get the same effect as mockup
 	* Bold, Italic, Medium
 * Fragment is used to show Switch ( toggle On/Off), ListView	
@@ -46,27 +46,34 @@ UI
 	'>' arrow image to be inserted betweek start address and end address.
 	* Custom view takes care drawing start address, arrow bitmap, then end address.
 	* Single view also avoids additional view hierarchies and improves listview scrolling
-* Activity loggin ON 
+* Activity logging ON 
 	* startService(ActivityLoggerService);
-* Activity loggin OFF
+* Activity logging OFF
 	* stopService(ActivityLoggerService);
 
-Loaders
+##Loaders
 * To avoid blocking the UI, AsyncTaskLoaders is used to load activity activity logs from database asynchronously in background thread.
 * Loads all the activities from current date to from starting.
- `[ Loading new activity could be improved by loading the new activity only]`
+ `[ Loading new detected activity could be improved by loading only the newly detected rather all activities]`
 * Registers for activity available receiver.
 
-Receivers
+##Receivers
 * BOOT_COMPLETED 
 	* Listends for boot completed event and decides to start the ActivityLoggerService.
 * New Activity available
 	* Listends for new activity available message and asks the loader to force load the data.
 
-StickyHeaderListView
-* Since the mockup didn't had place holder to show the date for which activity logs
-	are tracked, decided to use Sticky Headers ( just like in whatsapp chat conversation).
+##StickyHeaderListView
+* Decided to use Sticky Headers list view to show the date for which activites are shown( just like in whatsapp chat conversation).
 * Used this below library.
 	* https://github.com/emilsjolander/StickyListHeaders
+
+##Download
+* The source code of demo app is available for you to play around and the app itself is available for download from play store :
+
+<a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app">
+  <img alt="Get it on Google Play"
+       src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png" />
+</a>
 
 
