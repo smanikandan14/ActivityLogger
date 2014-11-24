@@ -71,13 +71,13 @@ public class ActivitiesDBManager {
     }
 
     private void fillActivityTable() {
-        Cursor cursor = activitiesDB.query(ActivitiesConstants.ACTIVITY_TABLE,
+        Cursor cursor = activitiesDB.query(ActivitiesConstants.ACTIVITY_NAME_TABLE,
                 null,null,null, null, null, null);
         if(cursor != null && cursor.moveToFirst() == false ) {
             ContentValues values = new ContentValues();
             for(ActivityName activity: ActivityName.values()) {
                 values.put(ActivitiesConstants.ACTIVITY_NAME.ACTIVITY_NAME, activity.getName());
-                long id = activitiesDB.insert(ActivitiesConstants.ACTIVITY_TABLE, null, values);
+                long id = activitiesDB.insert(ActivitiesConstants.ACTIVITY_NAME_TABLE, null, values);
                 // Fill the dictionary
                 activityIds.put((int) id, activity);
             }

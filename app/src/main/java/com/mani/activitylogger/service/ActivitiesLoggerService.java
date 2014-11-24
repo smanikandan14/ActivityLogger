@@ -344,7 +344,7 @@ public class ActivitiesLoggerService extends Service implements
             // Rejected: ON_FOOT 42  Probable - [UNKNOWN 25 ON_BICYCLE 20 IN_VEHICLE 12]
             if( detectedActivity == DetectedActivity.ON_FOOT) {
                 if( detectedActivityConfidence < 50 || unknownConfidence > 30 ||
-                        bicycleConfidence > 2 || vehicleConfidence > 10) {
+                        bicycleConfidence > 10 || vehicleConfidence > 10) {
                     //Mostly likely not reliable to assume ON_FOOT
                     Log.d(TAG, " Ignoring the ON_FOOT activity as it has not reliable " );
                     return;
