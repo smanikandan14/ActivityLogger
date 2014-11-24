@@ -64,17 +64,17 @@ public class ActivitiesLoggerService extends Service implements
             = 5 * DateUtils.SECOND_IN_MILLIS; //5sec
 
     // Update frequency in milliseconds
-    private static final long LOCATION_UPDATE_INTERVAL = 1 * DateUtils.SECOND_IN_MILLIS; //5sec
+    private static final long LOCATION_UPDATE_INTERVAL = 5 * DateUtils.SECOND_IN_MILLIS; //5sec
 
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL = 1 * DateUtils.SECOND_IN_MILLIS ; // 1sec
 
     // Still state interval in seconds
-    public static final long STILL_STATE_INTERVAL = 30 * DateUtils.SECOND_IN_MILLIS; // 30 Sec
+    public static final long STILL_STATE_INTERVAL = 60 * DateUtils.SECOND_IN_MILLIS; // 30 Sec
 
     // In vehicle still state interval in seconds
     public static final long IN_VEHICLE_STILL_STATE_INTERVAL =
-            2 * 60 * DateUtils.SECOND_IN_MILLIS; // 2 min
+            3 * 60 * DateUtils.SECOND_IN_MILLIS; // 3 min
 
     // Minimum accuracy distance required to accept a location
     private int MINIMUM_ACCURACY_DISTANCE = 100; //In meters
@@ -129,7 +129,7 @@ public class ActivitiesLoggerService extends Service implements
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Service created");
-        mHandlerThread = new HandlerThread("TripLoggerServiceWorkerThread");
+        mHandlerThread = new HandlerThread("ActivityLoggerServiceWorkerThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
@@ -144,11 +144,11 @@ public class ActivitiesLoggerService extends Service implements
 
         mStillStateTimer = new StillStateTimer(STILL_STATE_INTERVAL, 1000L);
 
-        mInVehicleStillStateTimer = new StillStateTimer(STILL_STATE_INTERVAL, 1000L);
+        mInVehicleStillStateTimer = new StillStateTimer(IN_VEHICLE_STILL_STATE_INTERVAL, 1000L);
 
         mCurrentActivityName = ActivityName.UNKNOWN;
 
-        checkForTripIdFromPreference();
+        checkForActivityIdFromPreference();
     }
 
     private boolean servicesConnected() {
@@ -167,19 +167,19 @@ public class ActivitiesLoggerService extends Service implements
      * Checks if there was a previous activity for user when the services is killed and
      * restarted.
      */
-    private void checkForTripIdFromPreference() {
-        mCurrentActivityId = ActivityLoggerPreferenceManager.getLong(PreferenceKeys.CURRENT_TRIP_ID, 0);
+    private void checkForActivityIdFromPreference() {
+        mCurrentActivityId = ActivityLoggerPreferenceManager.getLong(PreferenceKeys.CURRENT_ACTIVITY_ID, 0);
         if ( mCurrentActivityId > 0) {
             boolean isStartLocationSet = ActivitiesDBManager.getInstance().
-                    isTripStartLocationSet(mCurrentActivityId);
+                    isActivityStartLocationSet(mCurrentActivityId);
 
             if(isStartLocationSet == false) {
                 //If start location is not set, then delete the activity.
-                ActivitiesDBManager.getInstance().deleteTrip(mCurrentActivityId);
+                ActivitiesDBManager.getInstance().deleteActivity(mCurrentActivityId);
                 mCurrentActivityId = 0;
             }  else {
                 //Set the previous current activity when service died.
-                mCurrentActivityName = ActivitiesDBManager.getInstance().getTripActivity(mCurrentActivityId);
+                mCurrentActivityName = ActivitiesDBManager.getInstance().getActivity(mCurrentActivityId);
             }
         }
     }
@@ -253,7 +253,7 @@ public class ActivitiesLoggerService extends Service implements
     }
 
     /**
-     * Converts Activity of user to TripActivity.
+     * Converts Activity of user to ActivityName.
      * @param type
      * @return
      */
@@ -444,7 +444,7 @@ public class ActivitiesLoggerService extends Service implements
         if(mCurrentActivityId == 0) {
             mCurrentActivityId = ActivitiesDBManager.getInstance().addActivity(mCurrentActivityName);
         }
-        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_TRIP_ID, mCurrentActivityId);
+        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_ACTIVITY_ID, mCurrentActivityId);
         getCurrentLocation();
     }
 
@@ -460,7 +460,7 @@ public class ActivitiesLoggerService extends Service implements
 
         getCurrentLocation();
         mCurrentActivityId = 0;
-        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_TRIP_ID, mCurrentActivityId);
+        ActivityLoggerPreferenceManager.setLong(PreferenceKeys.CURRENT_ACTIVITY_ID, mCurrentActivityId);
     }
 
     public void getCurrentLocation() {
@@ -519,7 +519,7 @@ public class ActivitiesLoggerService extends Service implements
         public void onTick(long millisUntilFinished) { }
     }
 
-    private void sendNewTripBroadcast() {
+    private void sendNewActivityDetectedBroadcast() {
         Log.d(TAG, "New Activity available message is Broad casted " );
         Intent broadCastIntent = new Intent(NewActivityReceiver.ACTION_NEW_TRIP);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadCastIntent);
@@ -536,10 +536,10 @@ public class ActivitiesLoggerService extends Service implements
      */
     class ActivityLocationListener implements LocationListener {
 
-        long tripId;
+        long activityId;
 
-        ActivityLocationListener(long tripId) {
-            this.tripId = tripId;
+        ActivityLocationListener(long activityId) {
+            this.activityId = activityId;
         }
 
         @Override
@@ -551,7 +551,7 @@ public class ActivitiesLoggerService extends Service implements
                     mLocationClient.removeLocationUpdates(this);
                 }
                 //Once a healthy location is obtained, do reverse geo coding.
-                getAddress(location, tripId);
+                getAddress(location, activityId);
             } else {
                 //Continue to wait for a accurate location.
             }
@@ -559,32 +559,32 @@ public class ActivitiesLoggerService extends Service implements
     }
 
     /**
-     * Given a tripId and a location, this runnable does reverse geocoding of the location
+     * Given a activityid and a location, this runnable does reverse geocoding of the location
      * and update the activity's either start or end location.
      *
      */
     class ReverseGeoCodeRunnable implements Runnable {
 
-        long tripId;
+        long activityId;
         Location currentLocation;
 
-        public ReverseGeoCodeRunnable(long tripId, Location location) {
-            this.tripId = tripId;
+        public ReverseGeoCodeRunnable(long activityId, Location location) {
+            this.activityId = activityId;
             this.currentLocation = location;
         }
 
         @Override
         public void run() {
-            boolean isStartLocationSet = ActivitiesDBManager.getInstance().isTripStartLocationSet(tripId);
+            boolean isStartLocationSet = ActivitiesDBManager.getInstance().isActivityStartLocationSet(activityId);
             long locationId = ActivitiesDBManager.getInstance().addLocation(
                     currentLocation.getLatitude(), currentLocation.getLongitude());
             if (isStartLocationSet == false) {
                 ActivitiesDBManager.getInstance().
-                        updateTripStartLocation(tripId, locationId);
+                        updateTripStartLocation(activityId, locationId);
 
             } else {
                 ActivitiesDBManager.getInstance().
-                        updateTripEndLocation(tripId, locationId);
+                        updateTripEndLocation(activityId, locationId);
             }
 
             // Get the address and update the corresponding location id.
@@ -592,8 +592,8 @@ public class ActivitiesLoggerService extends Service implements
             ActivitiesDBManager.getInstance().updateLocationAddress(locationId, addressText);
 
             if (isStartLocationSet) {
-                //Once the address is obtained. We can send the broadcast.
-                sendNewTripBroadcast();
+                //Once the address is obtained. Send the new activity available broadcast.
+                sendNewActivityDetectedBroadcast();
             }
         }
     }

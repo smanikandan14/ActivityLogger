@@ -8,18 +8,18 @@
         android:background="@color/bg_screen">
 
     <Switch
-        android:id="@+id/tripLogSwitch"
+        android:id="@+id/activityLogSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:textColor="@color/font_white"/>
 
     <TextView
-        android:id="@+id/tripLoggingTxt"
+        android:id="@+id/activityLoggingTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignTop="@id/tripLogSwitch"
+        android:layout_alignTop="@id/activityLogSwitch"
         style="@style/TitleFont"
         android:text="@string/trip_logging"/>
 
@@ -28,11 +28,11 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/list_item_divider"
-        android:layout_below="@id/tripLoggingTxt"
+        android:layout_below="@id/activityLoggingTxt"
         android:layout_marginTop="@dimen/activity_vertical_margin"/>
 
     <se.emilsjolander.stickylistheaders.StickyListHeadersListView
-        android:id="@+id/tripsList"
+        android:id="@+id/activitiesList"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scrollbars="none"

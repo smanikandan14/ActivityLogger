@@ -25,26 +25,26 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 public class ActivitiesListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
     private LayoutInflater mInflater;
-    List<UserActivity> tripsList;
+    List<UserActivity> activitiesList;
 
     public ActivitiesListAdapter() {
         mInflater = LayoutInflater.from(ActivitiesLoggerApplication.getContext());
     }
 
     public void setTrips(List<UserActivity> data) {
-        this.tripsList = data;
+        this.activitiesList = data;
         //Update the list items
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return tripsList == null ? 0 : tripsList.size();
+        return activitiesList == null ? 0 : activitiesList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return tripsList == null ? null : tripsList.get(position);
+        return activitiesList == null ? null : activitiesList.get(position);
     }
 
     @Override
@@ -60,33 +60,33 @@ public class ActivitiesListAdapter extends BaseAdapter implements StickyListHead
             convertView = mInflater.inflate(R.layout.activities_logger_list_item, null);
             holder = new ViewHolder();
             convertView.setTag(holder);
-            holder.addressView = (AddressView) convertView.findViewById(R.id.tripAddress);
-            holder.tripTime = (TextView) convertView.findViewById(R.id.tripTime);
-            holder.tripActivityIcon = (ImageView) convertView.findViewById(R.id.tripTypeIcon);
+            holder.addressView = (AddressView) convertView.findViewById(R.id.activityAddress);
+            holder.activityTime = (TextView) convertView.findViewById(R.id.activityTime);
+            holder.activityIcon = (ImageView) convertView.findViewById(R.id.activityTypeIcon);
 
-            holder.tripTime.setTypeface(FontProvider.getNormalFont());
+            holder.activityTime.setTypeface(FontProvider.getNormalFont());
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        UserActivity userActivity = tripsList.get(position);
+        UserActivity userActivity = activitiesList.get(position);
         String startAddress = userActivity.getStartLocation().getAddress();
         String endAddress = userActivity.getEndLocation().getAddress();
         startAddress = (startAddress == null) ? "Not Found" : startAddress;
         endAddress = (endAddress == null) ? "Not Found" : endAddress;
 
-        holder.tripActivityIcon.setImageResource(getTripActivityIcon(userActivity.getActivity()));
+        holder.activityIcon.setImageResource(getActivityIcon(userActivity.getActivity()));
         holder.addressView.setStartAddressText(startAddress);
         holder.addressView.setEndAddressText(endAddress);
-        holder.tripTime.setText(DateTimeUtil.getTripDisplayTime(userActivity.getStartTime(), userActivity.getEndTime()));
+        holder.activityTime.setText(DateTimeUtil.getActivityDisplayTime(userActivity.getStartTime(), userActivity.getEndTime()));
 
         return convertView;
     }
 
     class ViewHolder {
         AddressView addressView;
-        TextView tripTime;
-        ImageView tripActivityIcon;
+        TextView activityTime;
+        ImageView activityIcon;
     }
 
     @Override
@@ -102,21 +102,21 @@ public class ActivitiesListAdapter extends BaseAdapter implements StickyListHead
             holder = (HeaderViewHolder) convertView.getTag();
         }
         //set header text as date for this trip.
-        UserActivity userActivity = tripsList.get(position);
+        UserActivity userActivity = activitiesList.get(position);
         holder.text.setText(userActivity.getHeaderTxt());
         return convertView;
     }
 
     @Override
     public long getHeaderId(int position) {
-        return tripsList.get(position).getHeaderId();
+        return activitiesList.get(position).getHeaderId();
     }
 
     class HeaderViewHolder {
         TextView text;
     }
 
-    private int getTripActivityIcon(ActivityName activityName) {
+    private int getActivityIcon(ActivityName activityName) {
         if (activityName == ActivityName.WALK) {
             return R.drawable.icon_walk;
         } else if (activityName == ActivityName.BICYCLE) {

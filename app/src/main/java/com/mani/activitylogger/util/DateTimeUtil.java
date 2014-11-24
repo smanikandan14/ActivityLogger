@@ -14,15 +14,15 @@ import java.util.Calendar;
  */
 public class DateTimeUtil {
 
-    private static final String TRIP_DISPLAY_DATE_FORMAT = "h:mmaa";
-    private static final String TRIP_HEADER_DATE_FORMAT = "MMMM dd, yyyy";
+    private static final String ACTIVITY_DISPLAY_DATE_FORMAT = "h:mmaa";
+    private static final String ACTIVITY_HEADER_DATE_FORMAT = "MMMM dd, yyyy";
 
     private static SimpleDateFormat sTripHeaderDateFormat =
-            new SimpleDateFormat(TRIP_HEADER_DATE_FORMAT);
+            new SimpleDateFormat(ACTIVITY_HEADER_DATE_FORMAT);
 
-    public static String getTripDisplayTime(long startTime, long endTime) {
+    public static String getActivityDisplayTime(long startTime, long endTime) {
 
-        SimpleDateFormat timeFormat = new SimpleDateFormat(TRIP_DISPLAY_DATE_FORMAT);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(ACTIVITY_DISPLAY_DATE_FORMAT);
         //Replace uppercase AM/PM to lower case am/pm
         DateFormatSymbols symbols = new DateFormatSymbols();
         symbols.setAmPmStrings(new String[] { "am", "pm" });
@@ -38,10 +38,10 @@ public class DateTimeUtil {
         Resources resources = ActivitiesLoggerApplication.getContext().getResources();
         return String.format(
                 resources.getString(R.string.trip_time_format),
-                startTimeText, endTimeText, getTripTime(startTime, endTime) );
+                startTimeText, endTimeText, getActivityTime(startTime, endTime) );
     }
 
-    private static String getTripTime(long startTime, long endTime) {
+    private static String getActivityTime(long startTime, long endTime) {
         long differenceInSeconds = endTime - startTime;
 
         //Check for seconds
@@ -60,7 +60,7 @@ public class DateTimeUtil {
         }
     }
 
-    public static String getTripHeaderText(long startTime) {
+    public static String getActivityHeaderText(long startTime) {
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(startTime * 1000);

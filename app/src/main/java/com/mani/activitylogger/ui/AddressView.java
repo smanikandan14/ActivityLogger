@@ -49,8 +49,8 @@ public class AddressView extends View {
     private void init(Context context) {
         mContext = context;
 
-        textSize = mContext.getResources().getDimensionPixelSize(R.dimen.trip_address_text_size);
-        mArrowMargin = mContext.getResources().getDimensionPixelSize(R.dimen.trip_arrow_margin);
+        textSize = mContext.getResources().getDimensionPixelSize(R.dimen.address_text_size);
+        mArrowMargin = mContext.getResources().getDimensionPixelSize(R.dimen.arrow_margin);
 
         mTextPaint = new Paint();
         mTextPaint.setTypeface(FontProvider.getBold());
@@ -114,13 +114,13 @@ public class AddressView extends View {
         posX = 0;
         posY = textSize;
 
-        //Draw start trip address text
+        //Draw start address text
         drawText(startAddress, canvas);
 
         //Draw a arrow image with margins on left & right
         drawArrow(canvas);
 
-        //Draw end trip address text
+        //Draw end address text
         drawText(endAddress, canvas);
     }
 

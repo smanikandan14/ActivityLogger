@@ -47,11 +47,11 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
     // ListView Adapter
     private ActivitiesListAdapter mAdapter;
 
-    // List view to show trips
-    private StickyListHeadersListView mTripsListView;
+    // List view to show activities
+    private StickyListHeadersListView mActivitiesListView;
 
     // Switch to turn on/off activity tracking
-    private Switch mTripLoggingSwitch;
+    private Switch mActivityLoggingSwitch;
 
     // Tells if play services and location services are enabled for
     // the app to function.
@@ -59,7 +59,7 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
 
     AlertDialog mEnableLocationServicesDialog = null;
 
-    private final String TAG = "TripLoggerFragment";
+    private final String TAG = "ActivitiesLoggerFragment";
 
     // Define a DialogFragment that displays the error dialog
     public static class ErrorDialogFragment extends DialogFragment {
@@ -91,29 +91,29 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_activities_logger,container,false);
 
-        ((TextView) view.findViewById(R.id.tripLoggingTxt)).
+        ((TextView) view.findViewById(R.id.activityLoggingTxt)).
                 setTypeface(FontProvider.getMediumFont());
 
-        mTripsListView = (StickyListHeadersListView) view.findViewById(R.id.tripsList);
+        mActivitiesListView = (StickyListHeadersListView) view.findViewById(R.id.activitiesList);
 
         //Set up empty view
-        setUpTripListView(view);
+        setUpActivitiesListView(view);
 
         //Switch
-        mTripLoggingSwitch = (Switch) view.findViewById(R.id.tripLogSwitch);
-        mTripLoggingSwitch.setSwitchTextAppearance(getActivity(), R.style.SwitchTextAppearance);
+        mActivityLoggingSwitch = (Switch) view.findViewById(R.id.activityLogSwitch);
+        mActivityLoggingSwitch.setSwitchTextAppearance(getActivity(), R.style.SwitchTextAppearance);
 
-        mTripLoggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mActivityLoggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 ActivityLoggerPreferenceManager.setBoolean(
-                        PreferenceKeys.TRIP_LOG_SWITCH_CHANGED_BY_USER, true);
+                        PreferenceKeys.ACTIVITIES_LOG_SWITCH_CHANGED_BY_USER, true);
 
                 if( mIsPlayServicesAndLocationProvidersEnabled ) {
                     if (isChecked) {
                         ActivityLoggerPreferenceManager.setBoolean(
-                                PreferenceKeys.TRIP_LOG_SWITCH_STATE, true);
+                                PreferenceKeys.ACTIVITIES_LOG_SWITCH_STATE, true);
 
                         //Start the service.
                         ActivitiesLoggerFragment.this.getActivity().
@@ -121,7 +121,7 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
 
                     } else {
                         ActivityLoggerPreferenceManager.setBoolean(
-                                PreferenceKeys.TRIP_LOG_SWITCH_STATE, false);
+                                PreferenceKeys.ACTIVITIES_LOG_SWITCH_STATE, false);
                         //Stop the service.
                         ActivitiesLoggerFragment.this.getActivity().
                                 stopService(new Intent(ActivitiesLoggerFragment.this.getActivity(), ActivitiesLoggerService.class));
@@ -152,10 +152,10 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
             getEnableLocationServicesAlertDialog().show();
 
             // Disable the switch
-            mTripLoggingSwitch.setEnabled(false);
+            mActivityLoggingSwitch.setEnabled(false);
 
-            //Indicate trip logging is switched off
-            mTripLoggingSwitch.setChecked(false);
+            //Indicate activity logging is switched off
+            mActivityLoggingSwitch.setChecked(false);
 
             // Stop the service.
             ActivitiesLoggerFragment.this.getActivity().
@@ -164,17 +164,17 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
 
         } else {
 
-            mTripLoggingSwitch.setEnabled(true);
+            mActivityLoggingSwitch.setEnabled(true);
 
             mIsPlayServicesAndLocationProvidersEnabled = true;
             boolean isSwitchChangedByUser = ActivityLoggerPreferenceManager.getBoolean(
-                    PreferenceKeys.TRIP_LOG_SWITCH_CHANGED_BY_USER, false);
+                    PreferenceKeys.ACTIVITIES_LOG_SWITCH_CHANGED_BY_USER, false);
 
             boolean switchState = true;
 
             if(isSwitchChangedByUser) {
                 switchState = ActivityLoggerPreferenceManager.getBoolean(
-                        PreferenceKeys.TRIP_LOG_SWITCH_STATE, true);
+                        PreferenceKeys.ACTIVITIES_LOG_SWITCH_STATE, true);
             }
 
             if (switchState) {
@@ -184,7 +184,7 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
 
             }
 
-            mTripLoggingSwitch.setChecked(switchState);
+            mActivityLoggingSwitch.setChecked(switchState);
         }
     }
 
@@ -221,11 +221,11 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
         return mEnableLocationServicesDialog;
     }
 
-    private void setUpTripListView(View view) {
+    private void setUpActivitiesListView(View view) {
         TextView emptyListView = (TextView) view.findViewById(R.id.emptyListView);
         emptyListView.setTypeface(FontProvider.getNormalFont());
-        mTripsListView.setEmptyView(emptyListView);
-        mTripsListView.setAdapter(mAdapter);
+        mActivitiesListView.setEmptyView(emptyListView);
+        mActivitiesListView.setAdapter(mAdapter);
     }
 
     private boolean servicesConnected() {
@@ -269,7 +269,7 @@ public class ActivitiesLoggerFragment extends Fragment implements LoaderManager.
 
     @Override
     public void onLoadFinished(Loader<List<UserActivity>> listLoader, List<UserActivity> userActivityList) {
-        //Loading progress will be shown until at least one trip is obtained.
+        //Loading progress will be shown until at least one activity is obtained.
         if( userActivityList != null && userActivityList.size() > 0) {
             mAdapter.setTrips(userActivityList);
         }

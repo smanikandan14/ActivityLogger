@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
  */
 public class MessageUtil {
 	private static Context context;
-	private static final boolean LOG_ENABLED = true;
+	private static final boolean LOG_ENABLED = false;
 
 	public static void initializeMessageUtil(Context applicationContext) {
 		context = applicationContext;
@@ -31,6 +31,7 @@ public class MessageUtil {
 		if (!LOG_ENABLED) {
             return;
         }
+
 		File root = null;
 		File logfile = null;
 		FileWriter writer = null;
@@ -48,11 +49,11 @@ public class MessageUtil {
 			}
 
 			if (externalStorageAvailable && externalStorageWriteable) {
-				root = new File(Environment.getExternalStorageDirectory(), "TripLogger");
+				root = new File(Environment.getExternalStorageDirectory(), "ActivitiesLogger");
 				if (!root.exists()) {
 					root.mkdirs();
 				}
-				logfile = new File(root, "trips.log");
+				logfile = new File(root, "activities.log");
 				writer = new FileWriter(logfile, true);
 				StringBuffer buf = new StringBuffer();
 				buf.append(currentDateTime());
@@ -74,5 +75,4 @@ public class MessageUtil {
 			}
 		}
 	}
-	//  ############################################################################
 }

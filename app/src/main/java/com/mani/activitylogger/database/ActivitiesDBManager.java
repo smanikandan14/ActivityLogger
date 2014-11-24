@@ -25,12 +25,12 @@ public class ActivitiesDBManager {
     // SQLite DB handle for activities.db
     private static SQLiteDatabase activitiesDB;
 
-    private static ActivitiesLoggerDatabase tripsDBCreator;
+    private static ActivitiesLoggerDatabase activitiesDBCreator;
 
     // Singleton instance
     private static ActivitiesDBManager instance;
 
-    // Dictionary of activity table ids and TripActivity
+    // Dictionary of activity table ids and ActivityNames
     private HashMap<Integer, ActivityName> activityIds = new HashMap<Integer, ActivityName>();
 
     public static ActivitiesDBManager getInstance() {
@@ -46,12 +46,12 @@ public class ActivitiesDBManager {
     }
 
     public ActivitiesDBManager() {
-        tripsDBCreator = new ActivitiesLoggerDatabase(ActivitiesLoggerApplication.getContext());
+        activitiesDBCreator = new ActivitiesLoggerDatabase(ActivitiesLoggerApplication.getContext());
         open();
     }
 
     public void open() throws SQLException {
-        activitiesDB = tripsDBCreator.getWritableDatabase();
+        activitiesDB = activitiesDBCreator.getWritableDatabase();
         fillActivityTable();
     }
 
@@ -64,9 +64,9 @@ public class ActivitiesDBManager {
             activitiesDB.close();
             activitiesDB = null;
         }
-        if(tripsDBCreator != null) {
-            tripsDBCreator.close();
-            tripsDBCreator = null;
+        if(activitiesDBCreator != null) {
+            activitiesDBCreator.close();
+            activitiesDBCreator = null;
         }
     }
 
@@ -92,7 +92,7 @@ public class ActivitiesDBManager {
         }
     }
 
-    private int getTripActivityId(ActivityName activity) {
+    private int getActivityId(ActivityName activity) {
         Set<Integer> keys = activityIds.keySet();
         int unknownId = 0;
         for(Integer key: keys) {
@@ -111,7 +111,7 @@ public class ActivitiesDBManager {
         long insertId = 0;
         ContentValues values = new ContentValues();
         values.put(ActivitiesConstants.ACTIVITY.START_TIME, System.currentTimeMillis()/1000);
-        values.put(ActivitiesConstants.ACTIVITY.ACTIVITY_TYPE, getTripActivityId(activity));
+        values.put(ActivitiesConstants.ACTIVITY.ACTIVITY_TYPE, getActivityId(activity));
 
         try {
             insertId = activitiesDB.insertOrThrow(ActivitiesConstants.ACTIVITY_TABLE, null,values);
@@ -121,9 +121,9 @@ public class ActivitiesDBManager {
         return insertId;
     }
 
-    public long endActivity(long tripId, long endTime) throws SQLException {
+    public long endActivity(long activityId, long endTime) throws SQLException {
         String WHERE = ActivitiesConstants.ACTIVITY.ACTIVITY_ID+"=?";
-        String args[] = { Long.toString(tripId)};
+        String args[] = { Long.toString(activityId)};
 
         long insertId = 0;
         ContentValues values = new ContentValues();
@@ -138,9 +138,9 @@ public class ActivitiesDBManager {
         return insertId;
     }
 
-    public long updateTripStartLocation(long tripId, long startLocationId) throws SQLException {
+    public long updateTripStartLocation(long activityId, long startLocationId) throws SQLException {
         String WHERE = ActivitiesConstants.ACTIVITY.ACTIVITY_ID+"=?";
-        String args[] = { Long.toString(tripId)};
+        String args[] = { Long.toString(activityId)};
 
         long insertId = 0;
         ContentValues values = new ContentValues();
@@ -155,9 +155,9 @@ public class ActivitiesDBManager {
         return insertId;
     }
 
-    public long updateTripEndLocation(long tripId, long endLocationId) throws SQLException {
+    public long updateTripEndLocation(long activityId, long endLocationId) throws SQLException {
         String WHERE = ActivitiesConstants.ACTIVITY.ACTIVITY_ID+"=?";
-        String args[] = { Long.toString(tripId)};
+        String args[] = { Long.toString(activityId)};
 
         long insertId = 0;
         ContentValues values = new ContentValues();
@@ -172,9 +172,9 @@ public class ActivitiesDBManager {
         return insertId;
     }
 
-    public boolean isTripStartLocationSet(long tripId) {
+    public boolean isActivityStartLocationSet(long activityId) {
         String WHERE = ActivitiesConstants.ACTIVITY.ACTIVITY_ID + "=?";
-        String args[] = {Long.toString(tripId)};
+        String args[] = {Long.toString(activityId)};
 
         Cursor cursor = activitiesDB.query(ActivitiesConstants.ACTIVITY_TABLE,
                 null, WHERE, args, null, null, null);
@@ -182,8 +182,8 @@ public class ActivitiesDBManager {
         boolean startLocationSet = false;
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                long tripStartLocationId = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.START_LOCATION));
-                startLocationSet = (tripStartLocationId <= 0) ? false: true;
+                long activityStartLocationId = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.START_LOCATION));
+                startLocationSet = (activityStartLocationId <= 0) ? false: true;
             }
         }
 
@@ -191,10 +191,10 @@ public class ActivitiesDBManager {
     }
 
     // Deleting a activity also deletes on references table.
-    public long deleteTrip(long tripId) throws SQLException {
+    public long deleteActivity(long activityId) throws SQLException {
 
         String WHERE = ActivitiesConstants.ACTIVITY.ACTIVITY_ID + "=?";
-        String args[] = {Long.toString(tripId)};
+        String args[] = {Long.toString(activityId)};
 
         long insertId = 0;
         try{
@@ -207,9 +207,9 @@ public class ActivitiesDBManager {
         return insertId;
     }
 
-    public ActivityName getTripActivity(long tripId) {
+    public ActivityName getActivity(long activityId) {
         String WHERE = ActivitiesConstants.ACTIVITY.ACTIVITY_ID + "=?";
-        String args[] = { Long.toString(tripId)};
+        String args[] = { Long.toString(activityId)};
 
         Cursor cursor = activitiesDB.query(ActivitiesConstants.ACTIVITY_TABLE,
                 null, WHERE, args, null, null, null);
@@ -269,8 +269,8 @@ public class ActivitiesDBManager {
         return insertId;
     }
 
-    public List<UserActivity> getTrips() {
-        return getTrips(0, System.currentTimeMillis()/1000);
+    public List<UserActivity> getActivities() {
+        return getActivities(0, System.currentTimeMillis()/1000);
     }
 
     /**
@@ -286,13 +286,13 @@ public class ActivitiesDBManager {
      *
      * select t.activity_id, t.start_time, t.end_time, t.activity_type, l1.latitude as start_latitude,
      * l1.longitude as start_longitude, l1.address as start_address, l2.latitude as end_latitude,
-     * l2.longitude as end_longitude, l2.address as end_address from trips as t
+     * l2.longitude as end_longitude, l2.address as end_address from activities as t
      * left join location as l1 on t.start_location = l1.location_id
      * left join location as l2 on t.end_location = l2.location_id
      * where t.start_time between 1412459824 and 0 and t.end_time > 0
      */
-    public List<UserActivity> getTrips(long startTime, long endTime) {
-        List<UserActivity> tripsList = new ArrayList<UserActivity>();
+    public List<UserActivity> getActivities(long startTime, long endTime) {
+        List<UserActivity> activitiesList = new ArrayList<UserActivity>();
         Map<String,Integer> headerMap = new HashMap<String,Integer>();
         int headerId = 0;
 
@@ -335,11 +335,11 @@ public class ActivitiesDBManager {
 
                     UserActivity userActivity = new UserActivity();
                     long id = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.ACTIVITY_ID));
-                    long tripStartTime = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.START_TIME));
-                    long tripEndTime = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.END_TIME));
+                    long activityStartTime = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.START_TIME));
+                    long activityEndTime = cursor.getLong(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.END_TIME));
                     userActivity.setId(id);
-                    userActivity.setStartTime(tripStartTime);
-                    userActivity.setEndTime(tripEndTime);
+                    userActivity.setStartTime(activityStartTime);
+                    userActivity.setEndTime(activityEndTime);
 
                     ActivityLocation startLocation = new ActivityLocation();
                     String address = cursor.getString(cursor.getColumnIndex(ActivitiesConstants.ACTIVITY.START_ADDRESS));
@@ -363,7 +363,7 @@ public class ActivitiesDBManager {
                     userActivity.setActivity(activityIds.get(activity));
 
                     //Set the header for this activity.
-                    userActivity.setHeaderTxt(DateTimeUtil.getTripHeaderText(userActivity.getStartTime()));
+                    userActivity.setHeaderTxt(DateTimeUtil.getActivityHeaderText(userActivity.getStartTime()));
                     if( !headerMap.containsKey(userActivity.getHeaderTxt())) {
                         headerMap.put(userActivity.getHeaderTxt(), Integer.valueOf(headerId));
                         userActivity.setHeaderId(headerId);
@@ -373,7 +373,7 @@ public class ActivitiesDBManager {
                         userActivity.setHeaderId(headerIdInteger.intValue());
                     }
 
-                    tripsList.add(userActivity);
+                    activitiesList.add(userActivity);
                 } while (cursor.moveToNext());
             }
         }
@@ -382,7 +382,7 @@ public class ActivitiesDBManager {
             cursor.close();
 
 
-        return tripsList;
+        return activitiesList;
     }
 
 }
