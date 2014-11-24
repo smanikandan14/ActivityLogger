@@ -3,16 +3,19 @@ ActivityLogger
 
 Android app that logs the activities of the user - WALK, ON BICYCLE, IN VEHICLE
 
+![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot1.png "")
+![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot2.png "")
+
 The app logs the activities of user when he walks, bicycles or travels in a vehicle. App uses the Play Services Activity Recognition Client to detect the user's activity and the activity logging is done automatically with a control to turn ON/OFF the
 logging. Here are the design consideration details.
 
-IntentService vs Service
+##IntentService vs Service
 * Intially planned to implement a IntentService since it takes care of executing the code in background thread.But logic demanded to have a timer task running to identify the user state which cannot be run using IntentService as its life ends as soon as the task is finished.
 * Also need to have LocationListener to get the current location if 'LastLocation' is not good enough.So the service should be active to receive the location updates.
 
 Decided go with a sticky Service and use a handler thread to do heavy operations in background.
 
-Service
+##Service
 * Sticky service is used. When the service is killed or crashed, system takes care of starting back the service.
 * Creates a handler thread which is used for reverseGeocoding and also in doing the big logic of when a user activity is recognized.	
 * Registers for ActivityRecognition and LocationClient
@@ -23,15 +26,17 @@ Service
 * But in case of user in vehicle, a 2 minute timer is used to detect user still state, as user could be in traffic signal or waiting in a traffic. ( this is not as per requirement, but thought it is a good suggestion)
 * Checks if there was a previous activity user was carrying out when the services is killed and restarted.
 
-Database
+##Database
 * Uses two tables, [activity & location ]
 * Activity table holds all the activities made by user. The location is referenced from location table.
-
+```
      [ id, startlocation, endlocation startTime, endTime]
      startlocation & endlocation -> foreign key to location table.
+```     
 * Location table stores all the start and end location of a activity. 
+```
      [ id. latitude, longitude, address]
-
+```
 UI
 * Roboto different fonts are used to get the same effect as mockup
 	* Bold, Italic, Medium
@@ -49,13 +54,12 @@ UI
 Loaders
 * To avoid blocking the UI, AsyncTaskLoaders is used to load activity activity logs from database asynchronously in background thread.
 * Loads all the activities from current date to from starting.
-* [ Loading new activity could be improved by loading the new activity only]
+ `[ Loading new activity could be improved by loading the new activity only]`
 * Registers for activity available receiver.
 
 Receivers
 * BOOT_COMPLETED 
 	* Listends for boot completed event and decides to start the ActivityLoggerService.
-
 * New Activity available
 	* Listends for new activity available message and asks the loader to force load the data.
 
