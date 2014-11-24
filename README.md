@@ -6,14 +6,13 @@ Android app that logs the activities of the user - WALK, ON BICYCLE, IN VEHICLE
 ![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot1.png "")
 ![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot2.png "")
 
-The app logs the activities of user when he walks, bicycles or travels in a vehicle. App uses the Play Services Activity Recognition Client to detect the user's activity and the activity logging is done automatically with a control to turn ON/OFF the
+The app logs the activities of user when the user walks, bicycles or travels in a vehicle. App uses the Play Services Activity Recognition Client to detect the user's activity and the activity logging is done automatically with a control to turn ON/OFF the
 logging. Here are the design consideration details.
 
 ##IntentService vs Service
 * Intially planned to implement a IntentService since it takes care of executing the code in background thread.But logic demanded to have a timer task running to identify the user state which cannot be run using IntentService as its life ends as soon as the task is finished.
 * Also need to have LocationListener to get the current location if 'LastLocation' is not good enough.So the service should be active to receive the location updates.
-
-Decided go with a sticky Service and use a handler thread to do heavy operations in background.
+* Decided to use a **sticky Service** and use a handler thread to do heavy operations in background.
 
 ##Service
 * Sticky service is used. When the service is killed or crashed, system takes care of starting back the service.
@@ -52,16 +51,16 @@ Decided go with a sticky Service and use a handler thread to do heavy operations
 	* stopService(ActivityLoggerService);
 
 ##Loaders
-* To avoid blocking the UI, AsyncTaskLoaders is used to load activity activity logs from database asynchronously in background thread.
+* To avoid blocking the UI, AsyncTaskLoaders is used to load activities logs from database asynchronously in background thread.
 * Loads all the activities from current date to from starting.
- `[ Loading new detected activity could be improved by loading only the newly detected rather all activities]`
-* Registers for activity available receiver.
+ `[Loading new detected activity could be improved by loading only the newly detected rather all activities]`
+* Registers for new activity available receiver.
 
 ##Receivers
 * BOOT_COMPLETED 
-	* Listends for boot completed event and decides to start the ActivityLoggerService.
+	* Listens for boot completed event and decides to start the ActivityLoggerService.
 * New Activity available
-	* Listends for new activity available message and asks the loader to force load the data.
+	* Listens for new activity available message and asks the loader to force load the data.
 
 ##StickyHeaderListView
 * Decided to use Sticky Headers list view to show the date for which activites are shown( just like in whatsapp chat conversation).
