@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_small"
         android:padding="@dimen/padding_small"
-        android:background="@color/bg_action_bar"
-        style="@style/ListHeaderFont"
-        android:text="Mani"/>
+        android:background="@color/bg_sticky_header"
+        style="@style/ListHeaderFont"/>
 </LinearLayout>

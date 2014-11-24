@@ -5,8 +5,8 @@
     <color name="primaryDark">#00796b</color>
     <color name="accent">#eeff41</color>
 
-    <item name="bg_screen" type="color">#EDE9E2</item>
-    <item name="bg_action_bar" type="color">#E6E2DA</item>
+    <item name="bg_screen" type="color">#fefefe</item>
+    <item name="bg_sticky_header" type="color">#E6E2DA</item>
 
     <!-- Fonts color -->
     <item name="font_dark" type="color">#666666</item>
