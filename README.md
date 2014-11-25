@@ -50,6 +50,9 @@ logging. Here are the design consideration details.
 * Activity logging OFF
 	* stopService(ActivityLoggerService);
 
+## Sequence
+![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/sequence_diagram.png "")
+
 ##Loaders
 * To avoid blocking the UI, AsyncTaskLoaders is used to load activities logs from database asynchronously in background thread.
 * Loads all the activities from current date to from starting.
