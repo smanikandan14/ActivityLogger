@@ -50,7 +50,7 @@ import java.util.Locale;
  * - If the service is killed in between an activity, services reads from preference when starting and
  *   continue recording the activity.
  *
- * - A 30 Sec CountDownTimer is used to identify if the user is in STILL state. The timer is started
+ * - A 1 min CountDownTimer is used to identify if the user is in STILL state. The timer is started
  *   when STILL activity is identified during a activity.
  *
  * Created by manikandan.selvaraju on 10/3/14.
@@ -70,7 +70,7 @@ public class ActivitiesLoggerService extends Service implements
     private static final long FASTEST_INTERVAL = 1 * DateUtils.SECOND_IN_MILLIS ; // 1sec
 
     // Still state interval in seconds
-    public static final long STILL_STATE_INTERVAL = 60 * DateUtils.SECOND_IN_MILLIS; // 30 Sec
+    public static final long STILL_STATE_INTERVAL = 60 * DateUtils.SECOND_IN_MILLIS; // 1min
 
     // In vehicle still state interval in seconds
     public static final long IN_VEHICLE_STILL_STATE_INTERVAL =
