@@ -21,7 +21,7 @@ logging. Here are the design consideration details.
 * As soon as activity recognition client is connected with location services, request for activity recognition is registered with 5 secs as detection interval and pending intent 
 * Receives the user activity through onStartCommand(Intent)
 * When a user activity is obtained, the probable activities are considered to finalise if the detected activity is good enough to proceed. More comments can be found in the code.
-* A 30 sec timer is used to determine the user's still state. 
+* A 1 min timer is used to determine the user's still state. 
 * But in case of user in vehicle, a 2 minute timer is used to detect user still state, as user could be in traffic signal or waiting in a traffic. ( this is not as per requirement, but thought it is a good suggestion)
 * Checks if there was a previous activity user was carrying out when the services is killed and restarted.
 
