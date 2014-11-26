@@ -1,7 +1,7 @@
 ActivityLogger
 ==============
 
-Android app that logs the activities of the user - WALK, ON BICYCLE, IN VEHICLE
+Android app that logs the activities of the user - WALK, ON BICYCLE, IN VEHICLE. This app is done for demonstration how to effectively use activity recognition client api's. With this implementation as a base a lot of useful apps which acts on user activities data can be built like Moves, Rove. 
 
 ![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot1.png "")
 ![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot2.png "")
