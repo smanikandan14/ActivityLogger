@@ -7,7 +7,9 @@ Android app that logs the activities of the user - WALK, ON BICYCLE, IN VEHICLE.
 ![alt text](https://github.com/smanikandan14/ActivityLogger/blob/master/art/screen_shot2.png "")
 
 The app logs the activities of user when the user walks, bicycles or travels in a vehicle. App uses the Play Services Activity Recognition Client to detect the user's activity and the activity logging is done automatically with a control to turn ON/OFF the
-logging. Here are the design consideration details.
+logging. All you need to do is launch the app only once and then you can exit or kill the app. But the app will continue montior users activity in background. You can find the service running all the time in Settings->Developer Options->Process Stats. 
+
+Here are the design implementation in detail.
 
 ##IntentService vs Service
 * Intially planned to implement a IntentService since it takes care of executing the code in background thread.But logic demanded to have a timer task running to identify the user state which cannot be run using IntentService as its life ends as soon as the task is finished.
